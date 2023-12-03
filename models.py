@@ -16,7 +16,7 @@ class GraphSAGE(torch.nn.Module):
         x = F.relu(x)
         x = F.dropout(x, training=self.training)
         x = self.conv2(x, edge_index)
-        return F.relu(x)
+        return x
 
 
 class GIN(torch.nn.Module):  # Good for graphs without node features
@@ -43,6 +43,21 @@ class GCN(torch.nn.Module):
         super(GCN, self).__init__()
         self.conv1 = torch_geometric.nn.GCNConv(in_channels, 16)
         self.conv2 = torch_geometric.nn.GCNConv(16, out_channels)
+
+    def forward(self, x, edge_index):
+        x = self.conv1(x, edge_index)
+        x = F.relu(x)
+        x = self.conv2(x, edge_index)
+        return x
+
+
+class GAT(torch.nn.Module):
+    name = 'GAT'
+
+    def __init__(self):
+        super(GAT, self).__init__()
+        self.conv1 = torch_geometric.nn.GATConv((-1, -1), 16, add_self_loops=False)
+        self.conv2 = torch_geometric.nn.GATConv(16, 1, add_self_loops=False)
 
     def forward(self, x, edge_index):
         x = self.conv1(x, edge_index)

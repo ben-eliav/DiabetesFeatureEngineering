@@ -3,7 +3,6 @@ from constants import *
 import torch
 from torch_geometric.nn import to_hetero
 from sklearn.metrics import ndcg_score
-import numpy as np
 
 
 class Trainer:
@@ -26,11 +25,16 @@ class Trainer:
         loss = self.criterion(out[self.data[subpop].train_mask], self.data[subpop].y[self.data[subpop].train_mask])
         loss.backward()
         self.optimizer.step()
-        return float(loss)
+        return float(loss), out
 
     def train(self):
-        loss_vals = {key: self.train_subpop(key) for key in self.data.x_dict}
-        return loss_vals, sum(loss_vals.values())
+        loss_vals = {}
+        ndcg = {}
+        for key in self.data.x_dict:
+            loss_vals[key], out = self.train_subpop(key)
+            ndcg[key] = ndcg_score(self.data[key].y[self.data[key].train_mask].detach().numpy().reshape(1, -1),
+                                   out[self.data[key].train_mask].detach().numpy().reshape(1, -1))
+        return loss_vals, sum(loss_vals.values()), ndcg
 
     def test_subpop(self, subpop, val):
         """
@@ -89,18 +93,18 @@ class Trainer:
         loss_epochs = []
         val_ndcg_epochs = []
         for epoch in range(EPOCHS):
-            loss = self.train()[1]
+            _, loss, train_ndcg = self.train()
             loss_epochs.append(loss)
             val_ndcg = self.test()[1]
             val_ndcg_epochs.append(val_ndcg)
             print(f'Epoch: {epoch}, Loss: {loss}, Val NDCG: {val_ndcg}')
+            print(f'Train NDCG: {train_ndcg}')
             if best_ndcg < val_ndcg:
                 best_ndcg = val_ndcg
                 torch.save(self.model.state_dict(), f'Models/{self.name}.pt')
         visualization.plot_loss_ndcg(loss_epochs, val_ndcg_epochs, self.baseline_ndcg()[1])
 
     def attempt(self):
-        # TODO: How to run model on heterogeneous graph?
         self.model.eval()
         out = self.model(self.data.x_dict, self.data.edge_index_dict)
 
