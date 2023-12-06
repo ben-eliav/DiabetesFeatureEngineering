@@ -145,16 +145,16 @@ class SyntheticDataGenerator:
         for i in range(10, len(self.feature_names)):
             feature = self.feature_names[i]
             choice = np.random.random()
-            if choice < 0.1:
+            if choice < self.consts['prob_option'][0]:
                 self.random_feature(feature)
-            elif choice < 0.15:
+            elif choice < self.consts['prob_option'][1]:
                 self.feature_based_feature(feature, 'label')
-            elif choice < 0.5:
+            elif choice < self.consts['prob_option'][2]:
                 self.feature_based_feature(feature, np.random.choice(self.feature_names[:i]))
-            elif choice < 0.7:
+            elif choice < self.consts['prob_option'][3]:
                 earlier_feature = np.random.choice(self.feature_names[:i])
                 self.feature_based_feature(feature, self.pointers[earlier_feature])
-            elif choice < 0.8:
+            elif choice < self.consts['prob_option'][4]:
                 self.feature_based_feature(feature, *np.random.choice(self.feature_names[:i],
                                                                       size=np.random.randint(2, 5), replace=False))
             else:
