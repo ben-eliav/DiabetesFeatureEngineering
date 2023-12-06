@@ -15,13 +15,16 @@ def main():
     parser.add_argument('--model', type=str, default='GAT', help='Model to be used')
     args = parser.parse_args()
     print('Loading graph...')
-    graph = torch.load(f'Graphs/{args.graph}')
-    print('Done loading graph.')
-    print('Beginning training...')
-    model = getattr(models, args.model)()
-    trainer = Trainer(graph, model, args.graph)
-    trainer.learn()
-    print('Done training.')
+    try:
+        graph = torch.load(f'Graphs/{args.graph}')
+        print('Done loading graph.')
+        print('Beginning training...')
+        model = getattr(models, args.model)()
+        trainer = Trainer(graph, model, args.graph)
+        trainer.learn()
+        print('Done training.')
+    except FileNotFoundError:
+        print("Graph not found. Create graph using create_graph.py")
 
 
 if __name__ == '__main__':
