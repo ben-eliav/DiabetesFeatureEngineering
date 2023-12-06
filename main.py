@@ -1,15 +1,28 @@
 from preprocessing import Preprocessor
-from createGraph import GraphCreator
+from create_graph import GraphCreator
 from constants import *
 from train_eval import Trainer
 import models
 import torch
 
-if __name__ == '__main__':
+
+def main():
+    import argparse
+
+    parser = argparse.ArgumentParser()
+    parser.add_argument('--graph', type=str, default='Synthetic1_complete_selfLoops_directed_oneHot.pt',
+                        help='Graph to be used')
+    parser.add_argument('--model', type=str, default='GAT', help='Model to be used')
+    args = parser.parse_args()
     print('Loading graph...')
-    graph = torch.load('Graphs/Synthetic1_complete_selfLoops_directed_oneHot.pt')
+    graph = torch.load(f'Graphs/{args.graph}')
     print('Done loading graph.')
     print('Beginning training...')
-    trainer = Trainer(graph, models.GAT(), 'Synthetic1_complete_selfLoops_directed_oneHot')
+    model = getattr(models, args.model)()
+    trainer = Trainer(graph, model, args.graph)
     trainer.learn()
     print('Done training.')
+
+
+if __name__ == '__main__':
+    main()
