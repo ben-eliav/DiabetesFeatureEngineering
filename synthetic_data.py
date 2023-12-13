@@ -175,7 +175,20 @@ class SyntheticDataGenerator:
 
 
 def make():
-    x = SyntheticDataGenerator('1')
+    import argparse
+
+    parser = argparse.ArgumentParser()
+    parser.add_argument('--name', type=str, default=1, help='Name of the synthetic dataset')
+    parser.add_argument('--num_features', type=int, default=1000, help='Number of features')
+    parser.add_argument('--num_labels', type=int, default=2, help='Number of possible labels')
+    parser.add_argument('--num_samples', type=int, default=100000, help='Mean size of each subpopulation')
+    parser.add_argument('--num_subpops', type=int, default=5, help='Number of subpopulations')
+    parser.add_argument('--seed', type=int, default=42, help='Seed for the random number generator')
+
+    args = parser.parse_args()
+
+    x = SyntheticDataGenerator(args.name, args.num_features, args.num_labels, args.num_samples,
+                               args.num_subpops, args.seed)
     x.generate_values()
     x.create_file()
 

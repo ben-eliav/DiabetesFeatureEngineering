@@ -104,6 +104,8 @@ class Trainer:
             val_ndcg_dict, val_ndcg, val_sse = self.test()
             val_ndcg_epochs.append(val_ndcg)
             print(f'Epoch: {epoch}, Train Loss: {loss}, Val Loss: {val_sse}')
+            train_ndcg = {key: round(train_ndcg[key], 3) for key in train_ndcg}
+            val_ndcg_dict = {key: round(val_ndcg_dict[key], 3) for key in val_ndcg_dict}
             print(f'Train NDCG: {train_ndcg}')
             print(f'Val NDCG: {val_ndcg_dict}')
             if best_ndcg < val_ndcg:
