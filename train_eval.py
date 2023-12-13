@@ -7,7 +7,7 @@ from sklearn.metrics import ndcg_score
 
 class Trainer:
     def __init__(self, data, model, name):
-        self.name = f'{model.name}_{name}'
+        self.name = f'{model.name}_{name.replace(".pt", "")}'
         self.data = data
         self.model = to_hetero(model, self.data.metadata())
         self.optimizer = torch.optim.Adam(self.model.parameters(), lr=LR, weight_decay=DECAY)
@@ -76,7 +76,10 @@ class Trainer:
         for feature_index in range(layer_size):
             labels = [self.data[subpop].y[feature_index] for subpop in self.data.x_dict
                       if self.data[subpop].train_mask[feature_index]]
-            predictions.append(sum(labels) / len(labels))
+            try:
+                predictions.append(sum(labels) / len(labels))
+            except ZeroDivisionError:
+                predictions.append(0)  # I don't know anything about this feature.
         return torch.tensor(predictions, dtype=torch.float32)
 
     def baseline_ndcg(self, validation=True):
@@ -85,7 +88,7 @@ class Trainer:
 
         :param validation: True if validation, False if test
         """
-        predictions = torch.tensor(self.baseline_prediction())
+        predictions = self.baseline_prediction()
 
         ndcg = {}
         for key in self.data.x_dict:
@@ -96,19 +99,25 @@ class Trainer:
 
     def learn(self):
         best_ndcg = -1
-        loss_epochs = []
+        train_loss_epochs = []
+        val_loss_epochs = []
+        train_ndcg_epochs = []
         val_ndcg_epochs = []
         for epoch in range(EPOCHS):
             _, loss, train_ndcg = self.train()
-            loss_epochs.append(loss)
+            train_loss_epochs.append(loss)
+            train_ndcg_epochs.append(sum(train_ndcg.values()))
             val_ndcg_dict, val_ndcg, val_sse = self.test()
+            val_loss_epochs.append(val_sse)
             val_ndcg_epochs.append(val_ndcg)
-            print(f'Epoch: {epoch}, Train Loss: {loss}, Val Loss: {val_sse}')
+            print(f'Epoch: {epoch}, Train Loss: {loss:.4f}, Val Loss: {val_sse:.3f}')
             train_ndcg = {key: round(train_ndcg[key], 3) for key in train_ndcg}
             val_ndcg_dict = {key: round(val_ndcg_dict[key], 3) for key in val_ndcg_dict}
-            print(f'Train NDCG: {train_ndcg}')
-            print(f'Val NDCG: {val_ndcg_dict}')
+            print(f'Train NDCG per subpopulation:', str(train_ndcg)[1:-1].replace("'", ""))
+            print(f'Validation NDCG per subpopulation:', str(val_ndcg_dict)[1:-1].replace("'", ""))
+            print('-' * 50)
             if best_ndcg < val_ndcg:
                 best_ndcg = val_ndcg
                 torch.save(self.model.state_dict(), f'Models/{self.name}.pt')
-        visualization.plot_loss_ndcg(loss_epochs, val_ndcg_epochs, self.baseline_ndcg()[1])
+        visualization.plot_loss_ndcg((train_loss_epochs, val_loss_epochs),
+                                     (train_ndcg_epochs, val_ndcg_epochs), self.baseline_ndcg()[1])
