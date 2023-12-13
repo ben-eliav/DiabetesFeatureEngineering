@@ -160,13 +160,13 @@ def main():
     import argparse
 
     parser = argparse.ArgumentParser()
-    parser.add_argument('--task', type=str, default='Diabetes', help='Dataset to be used')
-    parser.add_argument('--method', type=str, default='rank', help='Method to be used for intra layer edges')
+    parser.add_argument('--task', type=str, default='Synthetic1', help='Dataset to be used')
+    parser.add_argument('--method', type=str, default='complete', help='Method to be used for intra layer edges')
     parser.add_argument('--k', type=int, default=constants.K, help='Number of neighbors to connect to')
     parser.add_argument('--threshold', type=float, default=constants.THRESHOLD, help='MI threshold for edge existence')
     parser.add_argument('--self_loops', type=bool, default=True, help='Whether to connect nodes to themselves')
     parser.add_argument('--directed', type=bool, default=True, help='Whether to create directed graph')
-    parser.add_argument('--one_hot', type=bool, default=False, help='Whether to use one hot encoding')
+    parser.add_argument('--one_hot', type=bool, default=True, help='Whether to use one hot encoding')
     args = parser.parse_args()
 
     configs = json.load(open('dataConfigs.json'))
