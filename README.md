@@ -1,4 +1,4 @@
-#Feature Engineering Project
+# Feature Engineering Project
 
 This project's goal is to try and find out whether GNNs can be used in the feature engineering process in order to 
 estimate mutual information in heterogeneous populations. Heterogeneous populations are populations that can be 
@@ -6,7 +6,7 @@ divided into several subpopulations where each subpopulation has slightly differ
 for each subpopulation an ordered list of features that are most important in determining some target value for each 
 subpopulation.
 
-##Generating Synthetic Data
+## Generating Synthetic Data
 In order to generate synthetic data, we can run the file synthetic_data.py. Running this file will create a csv file 
 containing entirely synthetic data. The synthetic data will have specific behaviors for each subpopulation, while 
 still preserving a general idea of how each feature is supposed to behave. "synthetic_data.py" will also 
@@ -33,7 +33,7 @@ Synthetic data is also generated using some hyperparameters which can be changed
    value will affect the label. This will be used when we have a feature that is based on more than one other 
    previous feature.
 
-##Creating a Graph
+## Creating a Graph
 Before we can train any models on a graph, we must create the graph first. We can use the file create_graph.py in 
 order to turn any data that is saved as a csv file into a multiplex graph of features and subpopulations. It is 
 important to define which features will define the subpopulations in the dataConfigs.json file. We can also bin 
@@ -62,7 +62,7 @@ In the end, it will save the graph into a PyTorch (.pt) file. The graph is built
 creates train, validation and test sets for the nodes of the graph. The different sets are created at random using 
 the PyTorch built-in function RandomNodeSplit.
 
-##Training a Model
+## Training a Model
 Now that the graph is created, we can use a GNN model to predict MI values of each feature. We can use the file 
 "main.py" to train a learning model on a graph that we have built. There are two parameters that can be entered into 
 main.py:
