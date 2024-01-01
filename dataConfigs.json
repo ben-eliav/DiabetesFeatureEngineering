@@ -19,8 +19,8 @@
     "subpops": ["age", "gender"],
     "target": "readmitted"
   },
-  "Synthetic1": {
-    "file": "data/SyntheticData/synthetic_data_1.csv",
+  "Synthetic": {
+    "file": "data/SyntheticData/synthetic_data_",
     "null_values": [],
     "drop_columns": [],
     "bins": {},

@@ -170,8 +170,12 @@ def main():
     args = parser.parse_args()
 
     configs = json.load(open('dataConfigs.json'))
-    task = configs[args.task]
-    preprocessor = preprocessing.Preprocessor(task)
+    if 'Synthetic' not in args.task:
+        task = configs[args.task]
+        preprocessor = preprocessing.Preprocessor(task)
+    else:
+        task = configs['Synthetic']
+        preprocessor = preprocessing.Preprocessor(task, args.task[9:])
     subpops = preprocessor.interpret_data()
     print('Done with preprocessing')
     graph_creator = GraphCreator(subpops, task['subpops'], task['target'], args.directed, one_hot=args.one_hot)

@@ -169,8 +169,8 @@ class SyntheticDataGenerator:
             new_df = pd.DataFrame(self.values[subpop])
             new_df['subpop'] = subpop
             df = pd.concat([df, new_df])
-        df.to_csv(f'Data/SyntheticData/synthetic_data_{self.name}.csv', index=False)
-        with open(f'Data/SyntheticData/synthetic_data_{self.name}_desc.txt', 'w') as txt:  # Create description file
+        df.to_csv(f'data/SyntheticData/synthetic_data_{self.name}.csv', index=False)
+        with open(f'data/SyntheticData/synthetic_data_{self.name}_desc.txt', 'w') as txt:  # Create description file
             txt.write(self.desc)
 
 

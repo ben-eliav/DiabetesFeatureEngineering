@@ -6,8 +6,10 @@ class Preprocessor:
     Preprocesses data. Takes data from csv, cleans data and prepares it for division into subpopulations.
     """
 
-    def __init__(self, consts):
+    def __init__(self, consts, synthetic_name = None):
         self.consts = consts
+        if synthetic_name is not None:
+            self.consts['file'] += synthetic_name + '.csv'
 
     def upload_dataset(self):
         """
