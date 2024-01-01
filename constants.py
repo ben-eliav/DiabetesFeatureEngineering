@@ -8,7 +8,7 @@ THRESHOLD = 0.05
 LR = 1e-3  # Learning rate for optimizer
 DECAY = 5e-4  # Weight-decay for optimizer
 
-EPOCHS = 51  # Training epochs
+EPOCHS = 201  # Training epochs
 
 
 def timeit(func):
