@@ -3,6 +3,7 @@ from constants import *
 import torch
 from torch_geometric.nn import to_hetero
 from sklearn.metrics import ndcg_score
+import models
 
 
 class Trainer:
@@ -89,13 +90,19 @@ class Trainer:
         :param validation: True if validation, False if test
         """
         predictions = self.baseline_prediction()
-
+        sse = 0
         ndcg = {}
         for key in self.data.x_dict:
             mask = self.data[key].val_mask if validation else self.data[key].test_mask
             ndcg[key] = ndcg_score(self.data[key].y[mask].detach().numpy().reshape(1, -1),
                                    predictions[mask].numpy().reshape(1, -1))
-        return ndcg, sum(ndcg.values())
+            sse += (predictions[mask] - self.data[key].y[mask]).pow(2).sum().item()
+        return ndcg, sum(ndcg.values()), sse
+
+    def display_baseline(self):
+        baseline = self.baseline_ndcg()
+        print(f'Baseline Loss: {baseline[2]}')
+        print(f'Baseline NDCG per subpopulation:', str(baseline[0])[1:-1].replace("'", ""))
 
     def learn(self):
         best_ndcg = -1
@@ -119,5 +126,27 @@ class Trainer:
             if best_ndcg < val_ndcg:
                 best_ndcg = val_ndcg
                 torch.save(self.model.state_dict(), f'Models/{self.name}.pt')
+        self.display_baseline()
+
         visualization.plot_loss_ndcg((train_loss_epochs, val_loss_epochs),
                                      (train_ndcg_epochs, val_ndcg_epochs), self.baseline_ndcg()[1])
+
+
+if __name__ == '__main__':
+    import argparse
+
+    parser = argparse.ArgumentParser()
+    parser.add_argument('--graph', type=str, default='Synthetic1_complete_selfLoops_directed_oneHot.pt',
+                        help='Graph to be used')
+    parser.add_argument('--model', type=str, default='GAT', help='Model to be used')
+    args = parser.parse_args()
+    print('Loading graph...')
+    try:
+        graph = torch.load(f'Graphs/{args.graph}')
+        print('Done loading graph.')
+        print('Beginning training...')
+        model = getattr(models, args.model)()
+        trainer = Trainer(graph, model, args.graph)
+        trainer.display_baseline()
+    except FileNotFoundError:
+        pass
